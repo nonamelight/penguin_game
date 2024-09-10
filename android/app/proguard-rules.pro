@@ -1,0 +1,1 @@
+-keep class com.nonamelight.penguin_chat_game.BuildConfig { *; }
