@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:injectable/injectable.dart';
@@ -19,6 +20,10 @@ import 'injection.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   //TODO: Add sentry
   await Flame.device.fullScreen();
   await Flame.device.setLandscape();
@@ -36,7 +41,6 @@ Future<void> main() async {
     "chat.png",
     "chat_idle.png",
     "chat_run.png",
-    "penguin_test_run.png",
     "background/screen1/1.png",
     "background/screen1/2.png",
     "background/screen1/3.png",

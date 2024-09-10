@@ -10,11 +10,7 @@ import 'package:social_media_game/presentation/game/game.dart';
 
 const double MESSAGE_SHOW_TIME = 4;
 
-final _tiny = TextPaint(
-    style: TextStyle(
-        fontSize: 8,
-        color: BasicPalette.black.color,
-        fontFamily: GoogleFonts.pressStart2p().fontFamily));
+final _tiny = TextPaint(style: TextStyle(fontSize: 8, color: BasicPalette.black.color, fontFamily: GoogleFonts.pressStart2p().fontFamily));
 
 final _white = Paint()
   ..color = BasicPalette.white.color
@@ -27,10 +23,9 @@ class MyTextBox extends TextBoxComponent with HasGameRef<ClubPenguinGame> {
       : super(
           text: text,
           textRenderer: _tiny,
-          boxConfig: TextBoxConfig(
-              timePerChar: 0.05, maxWidth: text.length * 9.0), // T&E
+          boxConfig: TextBoxConfig(timePerChar: 0.05, maxWidth: text.length * 9.0), // T&E
         ) {
-    _timer = Timer(MESSAGE_SHOW_TIME + text.length * 0.15, onTick: () {
+    _timer = Timer(MESSAGE_SHOW_TIME + text.length * 0.2, onTick: () {
       removeFromParent();
     });
   }
@@ -56,8 +51,7 @@ class MyTextBox extends TextBoxComponent with HasGameRef<ClubPenguinGame> {
   @override
   void drawBackground(Canvas c) {
     final rect = Rect.fromLTWH(0, 0, width, height);
-    c.drawRRect(
-        RRect.fromRectAndRadius(rect, const Radius.circular(3)), _white);
+    c.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(3)), _white);
   }
 
   @override
@@ -67,17 +61,14 @@ class MyTextBox extends TextBoxComponent with HasGameRef<ClubPenguinGame> {
   }
 }
 
-class NotificationTextBox extends TextBoxComponent
-    with HasGameRef<ClubPenguinGame> {
+class NotificationTextBox extends TextBoxComponent with HasGameRef<ClubPenguinGame> {
   late Timer _timer;
 
   NotificationTextBox()
       : super(
           text: 'New Penguin joined',
           textRenderer: _tiny,
-          boxConfig: TextBoxConfig(
-              timePerChar: 0.05,
-              maxWidth: 'New Penguin joined'.length * 9.0), // T&E
+          boxConfig: TextBoxConfig(timePerChar: 0.05, maxWidth: 'New Penguin joined'.length * 9.0), // T&E
         ) {
     _timer = Timer(MESSAGE_SHOW_TIME, onTick: () {
       removeFromParent();

@@ -1,3 +1,4 @@
+import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:social_media_game/application/auth/auth_bloc.dart';
 import 'package:social_media_game/application/providers/chat_provider.dart';
 import 'package:social_media_game/application/providers/world_provider.dart';
 import 'package:social_media_game/application/status/status_bloc.dart';
+import 'package:social_media_game/core/utils/values.dart';
 import 'package:social_media_game/injection.dart';
 import 'package:social_media_game/presentation/game/game.dart';
 
@@ -86,7 +88,12 @@ class ClubPenguinGameWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GameWidget(
       game: getIt<ClubPenguinGame>(),
-      overlayBuilderMap: {ONLINE_GREEN: (_, __) => greenIconOverlay(), LEVEL_TEXT: (_, __) => _levelTextOverlay(), TEXT_FIELD: (_, ClubPenguinGame game) => _chatBoxTextFormField(game)},
+      overlayBuilderMap: {
+        ONLINE_GREEN: (_, __) => greenIconOverlay(),
+        LEVEL_TEXT: (_, __) => _levelTextOverlay(),
+        TEXT_FIELD: (_, ClubPenguinGame game) => _chatBoxTextFormField(game),
+        LOGIN_POPUP: (_, ClubPenguinGame game) => _joinWidget(context),
+      },
     );
   }
 
@@ -134,9 +141,9 @@ class ClubPenguinGameWidget extends StatelessWidget {
               return AnimatedCrossFade(
                 firstChild: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
-                  children: const [
+                  children: [
                     Text(
-                      "Night",
+                      "Day",
                       style: TextStyle(color: Colors.white, fontSize: 10),
                     ),
                     SizedBox(width: 4),
@@ -155,7 +162,7 @@ class ClubPenguinGameWidget extends StatelessWidget {
                     ),
                     SizedBox(width: 4),
                     Text(
-                      "Day",
+                      "Night",
                       style: TextStyle(color: Colors.white, fontSize: 10),
                     ),
                   ],
@@ -179,6 +186,78 @@ class ClubPenguinGameWidget extends StatelessWidget {
       height: 3,
       width: 3,
       decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.greenAccent),
+    );
+  }
+
+  Widget _joinWidget(BuildContext context) {
+    return Center(
+      child: Container(
+        width: 300,
+        height: 280,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.6),
+          border: Border.all(width: 3, color: Colors.white),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Column(
+          children: [
+            SizedBox(height: 10),
+            Text("Join Code"),
+            joinTextField(joinCode),
+            SizedBox(height: 10),
+            Text("Nick Name"),
+            joinTextField(nickName),
+            SizedBox(height: 10),
+            goButton(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget joinTextField(TextEditingController tc) {
+    return Container(
+      width: 280,
+      height: 40,
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5), border: Border.all(width: 1, color: Colors.blue)),
+      child: TextField(
+        controller: tc,
+        maxLength: 20,
+        decoration: InputDecoration(border: InputBorder.none, counter: const SizedBox()),
+        style: TextStyle(color: Colors.blue, fontSize: 16),
+      ),
+    );
+  }
+
+  Widget goButton(BuildContext context) {
+    return InkWell(
+      child: Container(
+        width: 80,
+        height: 40,
+        decoration: BoxDecoration(color: Colors.lightBlue, borderRadius: BorderRadius.circular(5)),
+        child: Center(
+            child: Text(
+          "GO!",
+          style: TextStyle(color: Colors.white),
+        )),
+      ),
+      onTap: () async {
+        if (joinCode.text == "" || nickName.text == "") {
+          await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: Colors.white,
+              title: Text("Input Error"),
+              content: Text("Please Type Text"),
+            ),
+          );
+        } else {
+          joinCodeText = joinCode.text;
+          nickNameText = nickName.text;
+          //TODO: remove POPUP
+        }
+      },
     );
   }
 }

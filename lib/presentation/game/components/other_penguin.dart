@@ -41,11 +41,11 @@ class OtherPenguin extends SpriteAnimationComponent with HasGameRef<ClubPenguinG
     );
     final SpriteSheet _walkSpriteSheet = SpriteSheet(
       srcSize: Vector2(33, 48),
-      image: Flame.images.fromCache("penguin_test_run.png"),
+      image: Flame.images.fromCache("walk.png"),
     );
     final SpriteSheet _chatWalkSpriteSheet = SpriteSheet(
       srcSize: Vector2(33, 48),
-      image: Flame.images.fromCache("penguin_test_run.png"),
+      image: Flame.images.fromCache("chat_run.png.png"),
     );
     final SpriteSheet _hurtSpriteSheet = SpriteSheet(
       srcSize: Vector2(33, 44),

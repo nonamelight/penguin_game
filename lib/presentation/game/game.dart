@@ -28,6 +28,7 @@ import 'components/penguin.dart';
 const ONLINE_GREEN = "ONLINE_GREEN";
 const TEXT_FIELD = "TEXT_FIELD";
 const LEVEL_TEXT = "LEVEL_TEXT";
+const LOGIN_POPUP = "LOGIN_POPUP";
 
 enum Background { day, night }
 
@@ -101,27 +102,12 @@ class ClubPenguinGame extends FlameGame {
     nightBackground = NightBackground();
     currentBackground = Background.day;
     me = BlocProvider.of<AuthBloc>(context).state.user!;
-    _newPlayerConnectedStream = FirebaseDatabase.instance
-        .reference()
-        .child(USER_COLLECTION)
-        .onChildAdded;
-    _playerDisconnectedStream = FirebaseDatabase.instance
-        .reference()
-        .child(USER_COLLECTION)
-        .onChildRemoved;
-    _playerMovingStream = FirebaseDatabase.instance
-        .reference()
-        .child(USER_COLLECTION)
-        .onChildChanged;
-    _playerTypingStream = FirebaseDatabase.instance
-        .reference()
-        .child(USER_COLLECTION)
-        .onChildChanged;
+    _newPlayerConnectedStream = FirebaseDatabase.instance.reference().child(USER_COLLECTION).onChildAdded;
+    _playerDisconnectedStream = FirebaseDatabase.instance.reference().child(USER_COLLECTION).onChildRemoved;
+    _playerMovingStream = FirebaseDatabase.instance.reference().child(USER_COLLECTION).onChildChanged;
+    _playerTypingStream = FirebaseDatabase.instance.reference().child(USER_COLLECTION).onChildChanged;
 
-    _chatStream = FirebaseDatabase.instance
-        .reference()
-        .child(MESSAGE_COLLECTION)
-        .onChildChanged;
+    _chatStream = FirebaseDatabase.instance.reference().child(MESSAGE_COLLECTION).onChildChanged;
 
     _userCount = 0;
 
@@ -174,6 +160,7 @@ class ClubPenguinGame extends FlameGame {
       overlays.add(ONLINE_GREEN);
       overlays.add(TEXT_FIELD);
       overlays.add(LEVEL_TEXT);
+      overlays.add(LOGIN_POPUP);
     });
 
     // Text Components
@@ -204,10 +191,8 @@ class ClubPenguinGame extends FlameGame {
       nightBackground.priority = 0;
       dayBackground.priority = -1;
       currentBackground = Background.night;
-      Provider.of<WorldProvider>(context, listen: false)
-          .updateBackground(currentBackground);
-      penguin.x =
-          PENGUIN_START; //TODO: create a method to reset inside `Penguin` class
+      Provider.of<WorldProvider>(context, listen: false).updateBackground(currentBackground);
+      penguin.x = PENGUIN_START; //TODO: create a method to reset inside `Penguin` class
       return;
     }
     // Nighttime and player on start of the screen
@@ -216,15 +201,13 @@ class ClubPenguinGame extends FlameGame {
       dayBackground.priority = 0;
 
       currentBackground = Background.day;
-      Provider.of<WorldProvider>(context, listen: false)
-          .updateBackground(currentBackground);
+      Provider.of<WorldProvider>(context, listen: false).updateBackground(currentBackground);
       penguin.x = _screenWidth - penguin.width;
       return;
     }
 
     // Add penguins into right background
-    final List<OtherPenguin> _otherPlayersList =
-        children.whereType<OtherPenguin>().toList();
+    final List<OtherPenguin> _otherPlayersList = children.whereType<OtherPenguin>().toList();
 
     for (final _otherPenguin in _otherPlayersList) {
       try {
@@ -254,8 +237,7 @@ class ClubPenguinGame extends FlameGame {
   ///
   /// It is called everytime any player joins, exists the game
   Future<void> _getOnlineUserCount() async {
-    final _snapshot =
-        await FirebaseDatabase.instance.ref().child(USER_COLLECTION).get();
+    final _snapshot = await FirebaseDatabase.instance.ref().child(USER_COLLECTION).get();
 
     try {
       if (_snapshot.value == null) {
@@ -269,17 +251,14 @@ class ClubPenguinGame extends FlameGame {
   }
 
   void _playerConnectedListener(DatabaseEvent event) {
-    final List<OtherPenguin> _otherPenguinLists =
-        children.whereType<OtherPenguin>().toList();
+    final List<OtherPenguin> _otherPenguinLists = children.whereType<OtherPenguin>().toList();
 
-    final GameUser _newCommer = GameUser.fromCollection(
-        Map<String, dynamic>.from(event.snapshot.value as Map));
+    final GameUser _newCommer = GameUser.fromCollection(Map<String, dynamic>.from(event.snapshot.value as Map));
 
     // Check if the player is you
     if (_newCommer.id == me.id) {
       // Check If Penguin already exist.
-      final bool _isPenguinAlreadyPresent =
-          children.whereType<Penguin>().isNotEmpty;
+      final bool _isPenguinAlreadyPresent = children.whereType<Penguin>().isNotEmpty;
       if (_isPenguinAlreadyPresent) {
         // Skip
       } else {
@@ -296,10 +275,7 @@ class ClubPenguinGame extends FlameGame {
     } else {
       // Other players
 
-      final bool _isNewCommerAlreadyPresent = _otherPenguinLists
-          .where((element) => element.user.id == _newCommer.id)
-          .toList()
-          .isNotEmpty;
+      final bool _isNewCommerAlreadyPresent = _otherPenguinLists.where((element) => element.user.id == _newCommer.id).toList().isNotEmpty;
       if (_isNewCommerAlreadyPresent) {
         // Skip
       } else {
@@ -315,14 +291,12 @@ class ClubPenguinGame extends FlameGame {
   }
 
   Future<void> _playerDisconnectedListener(DatabaseEvent event) async {
-    final GameUser _disconnectedUser = GameUser.fromCollection(
-        Map<String, dynamic>.from(event.snapshot.value as Map));
+    final GameUser _disconnectedUser = GameUser.fromCollection(Map<String, dynamic>.from(event.snapshot.value as Map));
 
     // Check if the player is you
     if (_disconnectedUser.id == me.id) {
       // Check If Penguin already exist.
-      final bool _isPenguinAlreadyPresent =
-          children.whereType<Penguin>().isNotEmpty;
+      final bool _isPenguinAlreadyPresent = children.whereType<Penguin>().isNotEmpty;
       if (_isPenguinAlreadyPresent) {
         _getOnlineUserCount();
 
@@ -336,16 +310,11 @@ class ClubPenguinGame extends FlameGame {
     } else {
       // Other players
 
-      final List<OtherPenguin> _otherPenguinLists =
-          children.whereType<OtherPenguin>().toList();
+      final List<OtherPenguin> _otherPenguinLists = children.whereType<OtherPenguin>().toList();
 
-      final bool _isDisconnectedAlreadyPresent = _otherPenguinLists
-          .where((element) => element.user.id == _disconnectedUser.id)
-          .toList()
-          .isNotEmpty;
+      final bool _isDisconnectedAlreadyPresent = _otherPenguinLists.where((element) => element.user.id == _disconnectedUser.id).toList().isNotEmpty;
       if (_isDisconnectedAlreadyPresent) {
-        final OtherPenguin _markDisconnectedPenguin = _otherPenguinLists
-            .firstWhere((element) => element.user.id == _disconnectedUser.id);
+        final OtherPenguin _markDisconnectedPenguin = _otherPenguinLists.firstWhere((element) => element.user.id == _disconnectedUser.id);
 
         remove(_markDisconnectedPenguin);
         _getOnlineUserCount();
@@ -359,38 +328,28 @@ class ClubPenguinGame extends FlameGame {
   }
 
   void _playerMovingListener(DatabaseEvent event) {
-    final GameUser _movingUser = GameUser.fromCollection(
-        Map<String, dynamic>.from(event.snapshot.value as Map));
+    final GameUser _movingUser = GameUser.fromCollection(Map<String, dynamic>.from(event.snapshot.value as Map));
 
     if (_movingUser.id == me.id) {
       // Skip
     } else {
       // Other players moving
 
-      final List<OtherPenguin> _otherPenguinLists =
-          children.whereType<OtherPenguin>().toList();
+      final List<OtherPenguin> _otherPenguinLists = children.whereType<OtherPenguin>().toList();
 
-      if (_otherPenguinLists
-          .where((element) => element.user.id == _movingUser.id)
-          .isEmpty) {
+      if (_otherPenguinLists.where((element) => element.user.id == _movingUser.id).isEmpty) {
         return;
       }
 
-      final OtherPenguin _markedAsMovePenguin = _otherPenguinLists
-          .lastWhere((element) => element.user.id == _movingUser.id);
+      final OtherPenguin _markedAsMovePenguin = _otherPenguinLists.lastWhere((element) => element.user.id == _movingUser.id);
 
-      _markedAsMovePenguin.user.currentBackground =
-          _movingUser.currentBackground;
+      _markedAsMovePenguin.user.currentBackground = _movingUser.currentBackground;
 
-      final bool _isIdle = _movingUser.x.floorToDouble() ==
-          _markedAsMovePenguin.x.floorToDouble();
+      final bool _isIdle = _movingUser.x.floorToDouble() == _markedAsMovePenguin.x.floorToDouble();
 
       if (!_isIdle) {
         _markedAsMovePenguin.timer.start();
-        final int _m = _movingUser.x.floorToDouble() >
-                _markedAsMovePenguin.x.floorToDouble()
-            ? 1
-            : -1;
+        final int _m = _movingUser.x.floorToDouble() > _markedAsMovePenguin.x.floorToDouble() ? 1 : -1;
         if (_m.isNegative) {
           _markedAsMovePenguin.walkLeft();
         } else {
@@ -402,25 +361,20 @@ class ClubPenguinGame extends FlameGame {
   }
 
   void _playerTypingListener(DatabaseEvent event) {
-    final GameUser _typingUser = GameUser.fromCollection(
-        Map<String, dynamic>.from(event.snapshot.value as Map));
+    final GameUser _typingUser = GameUser.fromCollection(Map<String, dynamic>.from(event.snapshot.value as Map));
 
     if (_typingUser.id == me.id) {
       // Skip
     } else {
       // Other players moving
 
-      final List<OtherPenguin> _otherPenguinLists =
-          children.whereType<OtherPenguin>().toList();
+      final List<OtherPenguin> _otherPenguinLists = children.whereType<OtherPenguin>().toList();
 
-      if (_otherPenguinLists
-          .where((element) => element.user.id == _typingUser.id)
-          .isEmpty) {
+      if (_otherPenguinLists.where((element) => element.user.id == _typingUser.id).isEmpty) {
         return;
       }
 
-      final OtherPenguin _markedAsTypingPenguin = _otherPenguinLists
-          .lastWhere((element) => element.user.id == _typingUser.id);
+      final OtherPenguin _markedAsTypingPenguin = _otherPenguinLists.lastWhere((element) => element.user.id == _typingUser.id);
 
       if (_typingUser.isTyping) {
         if (!_markedAsTypingPenguin.user.isTyping) {
@@ -437,11 +391,9 @@ class ClubPenguinGame extends FlameGame {
   }
 
   void _chatStreamListener(DatabaseEvent event) {
-    final List<OtherPenguin> _otherPenguinLists =
-        children.whereType<OtherPenguin>().toList();
+    final List<OtherPenguin> _otherPenguinLists = children.whereType<OtherPenguin>().toList();
 
-    final GameUser _chattingUser = GameUser.fromCollection(
-        Map<String, dynamic>.from(event.snapshot.value as Map));
+    final GameUser _chattingUser = GameUser.fromCollection(Map<String, dynamic>.from(event.snapshot.value as Map));
 
     if (_chattingUser.id == me.id) {
       // Skip
@@ -450,13 +402,10 @@ class ClubPenguinGame extends FlameGame {
       // Other player chating
 
       try {
-        if (_otherPenguinLists
-            .where((element) => element.user.id == _chattingUser.id)
-            .isEmpty) {
+        if (_otherPenguinLists.where((element) => element.user.id == _chattingUser.id).isEmpty) {
           return;
         }
-        final OtherPenguin _chattingPenguin = _otherPenguinLists
-            .lastWhere((element) => element.user.id == _chattingUser.id);
+        final OtherPenguin _chattingPenguin = _otherPenguinLists.lastWhere((element) => element.user.id == _chattingUser.id);
 
         _chattingPenguin.user.isTyping = false;
         _chattingPenguin.timer.start();
